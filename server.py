@@ -14,19 +14,28 @@ ni.ifaddresses('en0')
 ip = ni.ifaddresses('en0')[ni.AF_INET][0]['addr']
 print(ip)
 
+
 count = 0
+my_message =""
 async def consumer(message):
   global count
+  global my_message
   print(f"Received message: {message}")
+
   if message == "button thing":
     count = count + 1
     print(f"button pushes: {count}")
+    my_message = "button pushed" + ": " + str(count)
 
 async def producer():
-  message = str(random.randint(1200, 11000))
-  await asyncio.sleep(.100) # sleep for 100 miliseconds before returning message, to give other functions time.
+  global my_message
+  if my_message:
+    message = my_message
+    my_message = ""
+  else:
+    message = str(random.randint(1200, 11000))
+    await asyncio.sleep(2) # sleep for 100 miliseconds before returning message, to give other functions time.
   return message
-
 
 async def consumer_handler(websocket, path):
     async for message in websocket:
